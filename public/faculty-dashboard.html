@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Faculty Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f8ff;
+      color: #1f2933;
+      min-height: 100vh;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 70px;
+      background: linear-gradient(90deg, #0051c8, #0074ff);
+      display: flex; align-items: center;
+      padding: 0 20px; z-index: 100;
+    }
+
+    .hamburger {
+      width: 32px; height: 32px; display: flex;
+      align-items: center; justify-content: center;
+      cursor: pointer; margin-right: 16px;
+    }
+
+    .hamburger span, .hamburger span::before, .hamburger span::after {
+      display: block; width: 22px; height: 2px; background: #fff;
+      position: relative; border-radius: 999px;
+    }
+    .hamburger span::before { content: ""; position: absolute; top: -6px; left: 0; width: 22px; height: 2px; background: #fff; }
+    .hamburger span::after { content: ""; position: absolute; top: 6px; left: 0; width: 22px; height: 2px; background: #fff; }
+
+    .navbar-profile { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #e5f0ff; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 600; color: #2563eb;
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+    .title { color: #e5f0ff; font-size: 15px; font-weight: 500; }
+    .name { color: #e5f0ff; font-size: 13px; opacity: 0.85; }
+
+    /* Sidebar */
+    .sidebar-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,0.6);
+      opacity: 0; visibility: hidden;
+      transition: 0.25s ease;
+      z-index: 150;
+    }
+    .sidebar-overlay.open { opacity: 1; visibility: visible; }
+
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: 260px; height: 100vh;
+      background: #111827; color: #e5e7eb;
+      transform: translateX(-100%);
+      transition: 0.25s ease;
+      z-index: 200;
+      padding: 20px 18px;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    .sidebar.open { transform: translateX(0); }
+
+    .sidebar-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
+    }
+    .sidebar-avatar {
+      width: 46px; height: 46px; border-radius: 999px;
+      background: #1f2937; display: flex; align-items: center; justify-content: center;
+      font-weight: 600;
+    }
+    .sidebar-menu { list-style: none; margin-top: 10px; }
+    .sidebar-menu li {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 6px; font-size: 14px; cursor: pointer;
+      border-radius: 6px; transition: 0.15s ease;
+    }
+    .sidebar-menu li:hover { background: #1f2937; }
+
+    /* Page content */
+    .page { padding: 90px 40px 40px; }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px,1fr));
+      row-gap: 80px; column-gap: 120px;
+      justify-items: center;
+    }
+
+    .card { text-align: center; cursor: pointer; }
+    .card-icon {
+      width: 90px; height: 90px; border-radius: 20px;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px; box-shadow: 0 6px 18px rgba(15,23,42,0.08);
+    }
+    .card-icon-inner {
+      width: 60px; height: 60px; border-radius: 18px;
+      background: #e5f0ff; display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+    .card-label { font-size: 13px; font-weight: 600; color: #1f2937; }
+
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="hamburger" id="hamburger"><span></span></div>
+
+    <div class="navbar-profile">
+      <div class="avatar" id="navbarAvatar">F</div>
+      <div>
+        <div class="title">Welcome</div>
+        <div class="name" id="navbarName">Faculty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-avatar" id="sidebarAvatar">F</div>
+      <div class="sidebar-header-text">
+        <div class="name" id="sidebarName">Faculty Name</div>
+        <div class="last-login" id="lastLogin">Last Login: --</div>
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li><span class="sidebar-icon">★</span> <span>My Favorites</span></li>
+      <li><span class="sidebar-icon">🔔</span> <span>Notifications</span></li>
+      <li><span class="sidebar-icon">🛡️</span> <span>Privacy Notice</span></li>
+      <li><span class="sidebar-icon">🎨</span> <span>Change Theme</span></li>
+      <li id="sidebarLogout"><span class="sidebar-icon">⏻</span> <span>Logout</span></li>
+    </ul>
+  </aside>
+
+  <!-- Main page -->
+  <main class="page">
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-icon"><div class="card-icon-inner">📋</div></div>
+        <div class="card-label">List Of Holidays</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon"><div class="card-icon-inner">🗓️</div></div>
+        <div class="card-label">Time Table</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon"><div class="card-icon-inner">📊</div></div>
+        <div class="card-label">Exam Result</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon"><div class="card-icon-inner">📝</div></div>
+        <div class="card-label">Apply Leave</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon"><div class="card-icon-inner">📄</div></div>
+        <div class="card-label">Letters</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon"><div class="card-icon-inner">🔍</div></div>
+        <div class="card-label">Search</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon"><div class="card-icon-inner">📤</div></div>
+        <div class="card-label" id="logout-btn">Logout</div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Firebase Auth + Faculty-only protection -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyBHKG4zyqevL2YOX9epUGQmu78uffU0YGE",
+  authDomain: "attendence-app-2025.firebaseapp.com",
+  projectId: "attendence-app-2025",
+  storageBucket: "attendence-app-2025.firebasestorage.app",
+  messagingSenderId: "444309056726",
+  appId: "1:444309056726:web:d92e9667f58f511525ad77"
+};
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const logoutBtn     = document.getElementById("logout-btn");
+    const sidebarLogout = document.getElementById("sidebarLogout");
+
+    const navbarName    = document.getElementById("navbarName");
+    const navbarAvatar  = document.getElementById("navbarAvatar");
+    const sidebarName   = document.getElementById("sidebarName");
+    const sidebarAvatar = document.getElementById("sidebarAvatar");
+    const lastLoginEl   = document.getElementById("lastLogin");
+
+    async function handleLogout() {
+      await signOut(auth);
+      window.location.href = "login.html";
+    }
+
+    if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+    if (sidebarLogout) sidebarLogout.addEventListener("click", handleLogout);
+
+    /* 🛑 PAGE PROTECTION: Only Faculty Allowed */
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const uid = user.uid;
+      const userSnap = await getDoc(doc(db, "users", uid));
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return;
+      }
+
+      const data = userSnap.data();
+
+      if (data.role !== "faculty") {
+        /* Student trying to enter faculty page → redirect */
+        window.location.href = "student-dashboard.html";
+        return;
+      }
+
+      /* If faculty → set profile info */
+      const displayName = data.name || user.email || "Faculty";
+      const initial = displayName.trim().charAt(0).toUpperCase();
+
+      navbarName.textContent = displayName;
+      sidebarName.textContent = displayName;
+      navbarAvatar.textContent = initial;
+      sidebarAvatar.textContent = initial;
+
+      if (lastLoginEl && data.lastLogin) {
+        lastLoginEl.textContent = "Last Login: " + data.lastLogin;
+      }
+    });
+  </script>
+
+  <!-- Sidebar Script -->
+  <script>
+    const hamburger = document.getElementById("hamburger");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+    function openSidebar() {
+      sidebar.classList.add("open");
+      sidebarOverlay.classList.add("open");
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove("open");
+      sidebarOverlay.classList.remove("open");
+    }
+
+    hamburger.addEventListener("click", openSidebar);
+    sidebarOverlay.addEventListener("click", closeSidebar);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSidebar();
+    });
+  </script>
+
+</body>
+</html>

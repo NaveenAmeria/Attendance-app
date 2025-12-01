@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Campus Portal UI – Student Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #f5f8ff;
+      color: #1f2933;
+      min-height: 100vh;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: linear-gradient(90deg, #0051c8, #0074ff);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 100;
+    }
+
+    .hamburger {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-right: 16px;
+    }
+
+    .hamburger span,
+    .hamburger span::before,
+    .hamburger span::after {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #ffffff;
+      position: relative;
+      border-radius: 999px;
+    }
+
+    .hamburger span::before,
+    .hamburger span::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+    .hamburger span::before {
+      top: -6px;
+    }
+    .hamburger span::after {
+      top: 6px;
+    }
+
+    .navbar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #e5f0ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 600;
+      color: #2563eb;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .welcome-text {
+      color: #e5f0ff;
+    }
+    .welcome-text .title {
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .welcome-text .name {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    /* Main Content */
+    .page {
+      padding: 90px 40px 40px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      row-gap: 80px;
+      column-gap: 120px;
+      justify-items: center;
+    }
+
+    .card {
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .card-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: 20px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      margin: 0 auto 10px;
+    }
+
+    .card-icon-inner {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: #e5f0ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .card-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2937;
+      letter-spacing: 0.3px;
+    }
+
+    /* Sidebar overlay */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      z-index: 150;
+    }
+
+    .sidebar-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 260px;
+      height: 100vh;
+      background: #111827;
+      color: #e5e7eb;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 200;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      background: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .sidebar-header-text {
+      font-size: 14px;
+    }
+    .sidebar-header-text .name {
+      font-weight: 600;
+    }
+    .sidebar-header-text .last-login {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      margin-top: 10px;
+    }
+
+    .sidebar-menu li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 6px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.15s ease;
+    }
+
+    .sidebar-menu li:hover {
+      background: #1f2937;
+    }
+
+    .sidebar-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      padding-top: 10px;
+    }
+
+    /* Modal overlay & popup */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      z-index: 250;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      opacity: 0;
+      visibility: hidden;
+      width: 430px;
+      max-width: 90vw;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.35);
+      padding: 24px 28px 22px;
+      z-index: 260;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+
+    .modal.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: #111827;
+    }
+
+    .template-list-wrapper {
+      max-height: 170px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .template-item {
+      background: #d4d4d4;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s ease;
+    }
+
+    .template-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .template-item.active {
+      background: #55b8ff;
+      color: #ffffff;
+    }
+
+    .template-item:hover:not(.active) {
+      background: #c2c2c2;
+    }
+
+    .template-chevron {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .template-list-wrapper::-webkit-scrollbar {
+      width: 6px;
+    }
+    .template-list-wrapper::-webkit-scrollbar-track {
+      background: #e5e7eb;
+      border-radius: 999px;
+    }
+    .template-list-wrapper::-webkit-scrollbar-thumb {
+      background: #9ca3af;
+      border-radius: 999px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .page {
+        padding: 90px 20px 30px;
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+        column-gap: 40px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .cards-grid {
+        grid-template-columns: minmax(180px, 1fr);
+        row-gap: 40px;
+      }
+      .page {
+        padding-inline: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="hamburger" id="hamburger">
+      <span></span>
+    </div>
+
+    <div class="navbar-profile">
+      <div class="avatar" id="navbarAvatar">S</div>
+      <div class="welcome-text">
+        <div class="title">Welcome</div>
+        <div class="name" id="navbarName">Student</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-avatar" id="sidebarAvatar">S</div>
+      <div class="sidebar-header-text">
+        <div class="name" id="sidebarName">Student</div>
+        <div class="last-login" id="lastLogin">Last Login: --</div>
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li><span class="sidebar-icon">★</span> <span>My Favorites</span></li>
+      <li><span class="sidebar-icon">🔔</span> <span>Notifications</span></li>
+      <li><span class="sidebar-icon">🗂️</span> <span>Consent Dashboard</span></li>
+      <li><span class="sidebar-icon">🛡️</span> <span>Privacy Notice</span></li>
+      <li><span class="sidebar-icon">🎨</span> <span>Change Theme</span></li>
+      <li id="changeTemplateItem">
+        <span class="sidebar-icon">✏️</span> <span>Change Template</span>
+      </li>
+      <li><span class="sidebar-icon">🌐</span> <span>Change Language</span></li>
+    </ul>
+
+    <div class="sidebar-bottom">
+      <ul class="sidebar-menu">
+        <li id="sidebarLogout"><span class="sidebar-icon">⏻</span> <span>Logout</span></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Modal overlay + popup -->
+  <div class="modal-overlay" id="modalOverlay"></div>
+
+  <div class="modal" id="templateModal">
+    <div class="modal-title">Change Template</div>
+    <div class="template-list-wrapper">
+      <div class="template-item">
+        <span>HomePage</span>
+        <span class="template-chevron">▾</span>
+      </div>
+
+      <div class="template-item active">
+        <span>Student Dashboard</span>
+        <span class="template-chevron">▾</span>
+      </div>
+
+      <a href="faculty-dashboard.html" style="text-decoration:none; color:inherit;">
+        <div class="template-item">
+          <span>Faculty Dashboard</span>
+          <span class="template-chevron">▾</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main page -->
+  <main class="page">
+    <div class="cards-grid">
+      <!-- Row 1 -->
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">📋</div>
+        </div>
+        <div class="card-label">List Of Holidays</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">📄</div>
+        </div>
+        <div class="card-label">Campus Fee</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">🗓️</div>
+        </div>
+        <div class="card-label">Check Time Table</div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">🧾</div>
+        </div>
+        <div class="card-label">Fee Receipt</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">📊</div>
+        </div>
+        <div class="card-label">View Exam Result</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">🚌</div>
+        </div>
+        <div class="card-label">My Transport Request</div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">🛏️</div>
+        </div>
+        <div class="card-label">My Hostel Request</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">📄</div>
+        </div>
+        <div class="card-label">View and Download Letters</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">✉️</div>
+        </div>
+        <div class="card-label">Feedback</div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">📝</div>
+        </div>
+        <div class="card-label">Student Apply Leave</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">🔍</div>
+        </div>
+        <div class="card-label">Search</div>
+      </div>
+
+      <!-- Logout card -->
+      <div id="logout-btn" class="card">
+        <div class="card-icon">
+          <div class="card-icon-inner">📤</div>
+        </div>
+        <div class="card-label">Logout</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase Auth + Firestore: Student-only guard + logout -->
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBHKG4zyqevL2YOX9epUGQmu78uffU0YGE",
+    authDomain: "attendence-app-2025.firebaseapp.com",
+    projectId: "attendence-app-2025",
+    storageBucket: "attendence-app-2025.firebasestorage.app",
+    messagingSenderId: "444309056726",
+    appId: "1:444309056726:web:d92e9667f58f511525ad77"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const logoutBtn     = document.getElementById("logout-btn");
+  const sidebarLogout = document.getElementById("sidebarLogout");
+
+  const navbarName    = document.getElementById("navbarName");
+  const navbarAvatar  = document.getElementById("navbarAvatar");
+  const sidebarName   = document.getElementById("sidebarName");
+  const sidebarAvatar = document.getElementById("sidebarAvatar");
+  const lastLoginEl   = document.getElementById("lastLogin");
+
+  async function handleLogout() {
+    await signOut(auth);
+    window.location.href = "login.html";
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", handleLogout);
+  }
+  if (sidebarLogout) {
+    sidebarLogout.addEventListener("click", handleLogout);
+  }
+
+  // Sirf logged-in STUDENT ko hi yeh page dikhna chahiye
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // Not logged in → redirect to login
+      window.location.href = "login.html";
+      return;
+    }
+
+    try {
+      const uid      = user.uid;
+      const userRef  = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // koi role data nahi, logout kar dete hain
+        await signOut(auth);
+        window.location.href = "login.html";
+        return;
+      }
+
+      const data = userSnap.data();
+
+      // AGAR FACULTY YEH PAGE OPEN KARE, TOH FACULTY DASHBOARD PE BHEJ DO
+      if (data.role !== "student") {
+        window.location.href = "faculty-dashboard.html";
+        return;
+      }
+
+      // STUDENT ROLE CONFIRMED → Show student name everywhere
+      const displayName = data.name || user.email || "Student";
+      const initial     = displayName.trim().charAt(0).toUpperCase();
+
+      if (navbarName)   navbarName.textContent   = displayName;
+      if (sidebarName)  sidebarName.textContent  = displayName;
+      if (navbarAvatar) navbarAvatar.textContent = initial;
+      if (sidebarAvatar) sidebarAvatar.textContent = initial;
+
+      if (lastLoginEl && data.lastLogin) {
+        lastLoginEl.textContent = "Last Login: " + data.lastLogin;
+      }
+    } catch (err) {
+      console.error("Error checking role:", err);
+      await signOut(auth);
+      window.location.href = "login.html";
+    }
+  });
+</script>
+
+
+  <!-- UI behaviour (sidebar, modal etc.) -->
+  <script>
+    const hamburger = document.getElementById("hamburger");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const changeTemplateItem = document.getElementById("changeTemplateItem");
+
+    const modalOverlay = document.getElementById("modalOverlay");
+    const templateModal = document.getElementById("templateModal");
+
+    function openSidebar() {
+      sidebar.classList.add("open");
+      sidebarOverlay.classList.add("open");
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove("open");
+      sidebarOverlay.classList.remove("open");
+    }
+
+    function openModal() {
+      closeSidebar();
+      modalOverlay.classList.add("open");
+      templateModal.classList.add("open");
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove("open");
+      templateModal.classList.remove("open");
+    }
+
+    hamburger.addEventListener("click", openSidebar);
+    sidebarOverlay.addEventListener("click", closeSidebar);
+    changeTemplateItem.addEventListener("click", openModal);
+    modalOverlay.addEventListener("click", closeModal);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (templateModal.classList.contains("open")) {
+          closeModal();
+        } else if (sidebar.classList.contains("open")) {
+          closeSidebar();
+        }
+      }
+    });
+
+    document
+      .querySelectorAll(".template-item")
+      .forEach((item) =>
+        item.addEventListener("click", () => {
+          document
+            .querySelectorAll(".template-item")
+            .forEach((i) => i.classList.remove("active"));
+          item.classList.add("active");
+        })
+      );
+  </script>
+</body>
+</html>
